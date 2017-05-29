@@ -141,6 +141,17 @@ def setup_training(model, batcher):
   tf.logging.info("Preparing or waiting for session...")
   sess_context_manager = sv.prepare_or_wait_for_session(config=util.get_config())
   tf.logging.info("Created session.")
+
+  import numpy as np
+  total_param_count = 0
+  for variable in tf.trainable_variables():
+    param_name = variable.name
+    param_shape = variable.get_shape()
+    param_count = np.prod(param_shape.as_list())
+    total_param_count += param_count
+    tf.logging.info('{}={}: {}'.format(param_count, param_shape, param_name))
+  tf.logging.info('{}: total'.format(total_param_count))
+
   try:
     run_training(model, batcher, sess_context_manager, sv, summary_writer) # this is an infinite loop until interrupted
   except KeyboardInterrupt:
